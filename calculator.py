@@ -4,14 +4,14 @@ def save_report_to_file(report_content):
     """
     Saves the financial report to a text file with a unique timestamp.
     """
-    # Generate a unique filename using the current date and time
+   
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"financial_report_{timestamp}.txt"
     
     try:
-        # --- Debugging Step ---
+       
         print("\n--- DEBUG: Content being written to file ---")
-        print(report_content) # <-- ADD THIS LINE
+        print(report_content)
         print("------------------------------------------")
 
         with open(filename, 'w') as file:
@@ -61,13 +61,13 @@ def generate_financial_advice(income, expenses, savings):
     """
     advice_list = []
     
-    # Handle division by zero if income is zero
+   
     if income == 0:
         return "Your income is zero. Please enter a valid income to get advice."
         
     savings_percentage = (savings / income) * 100
 
-    # Advice based on savings
+   
     if savings > 0:
         advice_list.append(
             f"Great job! You saved ${savings:,.2f} this month. "
@@ -87,8 +87,7 @@ def generate_financial_advice(income, expenses, savings):
             "It's crucial to review your spending and create a budget."
         )
 
-    # Advice based on the largest expense
-    # Filter out categories where the user spent $0
+   
     non_zero_expenses = {k: v for k, v in expenses.items() if v > 0}
     if non_zero_expenses:
         largest_expense_category = max(non_zero_expenses, key=non_zero_expenses.get)
@@ -105,7 +104,7 @@ def save_report_to_file(report_content):
     """
     Saves the financial report to a text file with a unique timestamp.
     """
-    # Generate a unique filename using the current date and time
+   
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"financial_report_{timestamp}.txt"
     
@@ -116,22 +115,22 @@ def save_report_to_file(report_content):
     except IOError as e:
         print(f"\n❌ Error: Could not save the report. {e}")
 
-# --- Main Program ---
+
 if __name__ == "__main__":
     print("--- Monthly Expense and Savings Tracker ---")
 
-    # 1. Ask user for income and expenses
+    
     monthly_income = get_positive_float_input("Enter your total monthly income: $")
     expenses = get_user_expenses()
 
-    # 2. Calculate remaining money
+   
     total_expenses = sum(expenses.values())
     savings = monthly_income - total_expenses
 
-    # 3. Give advice based on spending patterns
+    
     advice = generate_financial_advice(monthly_income, expenses, savings)
     
-    # --- Build the final report ---
+    
     report = f"""
 ========================================
    Monthly Financial Report
@@ -158,8 +157,8 @@ Total Expenses: ${total_expenses:,.2f}
 ========================================
 """
     
-    # Print the report to the console
+   
     print(report)
 
-    # 4. Save results to a file
+
     save_report_to_file(report)
