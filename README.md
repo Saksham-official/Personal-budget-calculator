@@ -33,8 +33,8 @@ Follow these instructions to set up and run the project on your local machine.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-    cd your-repo-name
+    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/Saksham-official/Personal-budget-calculator/tree/main)
+    cd Personal-budget-calculator
     ```
 
 2.  **Install the required dependencies:**
