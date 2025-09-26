@@ -61,4 +61,4 @@ Follow these instructions to set up and run the project on your local machine.
 
 This application is deployed and accessible online via Streamlit Community Cloud.
 
-**[➡️ Access the live app here!](YOUR_DEPLOYMENT_LINK_HERE)**
+**[➡️ Access the live app here!](https://personal-budget-calculator-123.streamlit.app/)**
