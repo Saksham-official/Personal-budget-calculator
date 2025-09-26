@@ -1,39 +1,7 @@
+import streamlit as st
 import datetime
 
-def get_positive_float_input(prompt):
-    """
-    Prompts the user for a number and ensures it's a valid, non-negative float.
-    Keeps asking until valid input is received.
-    """
-    while True:
-        try:
-            value = float(input(prompt))
-            if value < 0:
-                print("Please enter a positive number or zero.")
-                continue
-            return value
-        except ValueError:
-            print("Invalid input. Please enter a numerical value.")
-
-def get_user_expenses():
-    """
-    Gathers expense details from the user for predefined categories.
-    """
-    expenses = {}
-    categories = [
-        'Rent/Mortgage', 
-        'Groceries', 
-        'Utilities', 
-        'Transportation', 
-        'Entertainment', 
-        'Other'
-    ]
-    
-    print("\nPlease enter your expenses for this month:")
-    for category in categories:
-        prompt = f"  Enter amount for {category}: $"
-        expenses[category] = get_positive_float_input(prompt)
-    return expenses
+# --- (Core logic functions from your original script - no changes needed) ---
 
 def generate_financial_advice(income, expenses, savings):
     """
@@ -44,7 +12,11 @@ def generate_financial_advice(income, expenses, savings):
     if income == 0:
         return "Your income is zero. Please enter a valid income to get advice."
         
-    savings_percentage = (savings / income) * 100
+    # Added a check to prevent division by zero if income is positive but small
+    try:
+        savings_percentage = (savings / income) * 100
+    except ZeroDivisionError:
+        savings_percentage = 0
 
     if savings > 0:
         advice_list.append(
@@ -68,10 +40,13 @@ def generate_financial_advice(income, expenses, savings):
     non_zero_expenses = {k: v for k, v in expenses.items() if v > 0}
     
     if non_zero_expenses:
-        # Use a lambda function for clarity with the type checker
         largest_expense_category = max(non_zero_expenses, key=lambda k: non_zero_expenses[k])
         largest_expense_value = non_zero_expenses[largest_expense_category]
-        expense_percentage = (largest_expense_value / income) * 100
+        try:
+            expense_percentage = (largest_expense_value / income) * 100
+        except ZeroDivisionError:
+            expense_percentage = 0
+            
         advice_list.append(
             f"Your largest spending category is '{largest_expense_category}' at ${largest_expense_value:,.2f}, "
             f"which is {expense_percentage:.2f}% of your income."
@@ -79,32 +54,38 @@ def generate_financial_advice(income, expenses, savings):
 
     return "\n".join(advice_list)
 
-def save_report_to_file(report_content):
-    """
-    Saves the financial report to a text file with a unique timestamp.
-    """
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"financial_report_{timestamp}.txt"
-    
-    try:
-        with open(filename, 'w') as file:
-            file.write(report_content)
-        print(f"\n✅ Success! Your report has been saved to '{filename}'")
-    except IOError as e:
-        print(f"\n❌ Error: Could not save the report. {e}")
+# --- (Streamlit App Interface) ---
 
+st.set_page_config(page_title="Personal Budget Calculator", layout="centered")
 
-if __name__ == "__main__":
-    print("--- Monthly Expense and Savings Tracker ---")
+st.title("💰 Monthly Expense & Savings Tracker")
 
-    monthly_income = get_positive_float_input("Enter your total monthly income: $")
-    expenses = get_user_expenses()
+# Use a form to group inputs
+with st.form("budget_form"):
+    st.header("Your Income")
+    # Use st.number_input for user input instead of input()
+    monthly_income = st.number_input("Enter your total monthly income:", min_value=0.0, format="%.2f")
 
+    st.header("Your Expenses")
+    categories = [
+        'Rent/Mortgage', 'Groceries', 'Utilities', 
+        'Transportation', 'Entertainment', 'Other'
+    ]
+    expenses = {}
+    # Create number inputs for each category
+    for category in categories:
+        expenses[category] = st.number_input(f"Enter amount for {category}:", min_value=0.0, format="%.2f")
+
+    # The button to trigger the calculations
+    submitted = st.form_submit_button("Generate Report")
+
+# This block runs only when the button is clicked
+if submitted:
     total_expenses = sum(expenses.values())
     savings = monthly_income - total_expenses
-
     advice = generate_financial_advice(monthly_income, expenses, savings)
     
+    # --- Generate the report string (same as before) ---
     report = f"""
 ========================================
    Monthly Financial Report
@@ -131,6 +112,17 @@ Total Expenses: ${total_expenses:,.2f}
 ========================================
 """
     
-    print(report)
-
-    save_report_to_file(report)
+    st.subheader("Your Financial Report")
+    # Use st.code to display the report in a formatted block
+    st.code(report, language=None)
+    
+    st.success("Report generated successfully!")
+    
+    # --- Add a download button ---
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+    st.download_button(
+        label="📥 Download Report as .txt",
+        data=report,
+        file_name=f"financial_report_{timestamp}.txt",
+        mime="text/plain"
+    )
